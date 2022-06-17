@@ -1,50 +1,76 @@
 #include "monty.h"
+/**
+  * break_line - brak up the line read.
+  * @line: line read.
+  *
+  * Return: array of strings .
+  */
+char **break_line(char *line)
+{
+	char *token = NULL;
+	char **tokens = NULL;
+	int i = 0;
+
+	tokens = malloc(sizeof(char *) * (sizeof(line) + 1));
+	if (tokens == NULL)
+	{
+		fprintf(stderr, "Error: malloc failed\n");
+		exit(EXIT_FAILURE);
+	}
+	token = strtok(line, " \t\n");
+	while (token != NULL)
+	{
+		tokens[i] = token;
+		token = strtok(NULL, " \t\n ");
+		i++;
+	}
+	tokens[i] = NULL;
+	return (tokens);
+}
 
 /**
- * _mod - get the module of the second top element of the stack and top element
- * @head: double pointer to header (top) of the stack.
- * @line_number: counter for line number of the file.
- * 
- * Return: void.
- */
-void _mod(stack_t **head, unsigned int line_number)
+  * free_dlist - frees a dlistint_t list.
+  * @head: pointer to list;
+  *
+  * Return: void.
+  */
+void free_dlist(stack_t *head)
 {
-	stack_t *current = *head;
-	int nnodes = 1; /*number of elements in stack*/
+	stack_t *temp;
 
-	if (*head == NULL)
+	while (head != NULL)
 	{
-		fprintf(stderr, "L%u: can't mod, stack too short\n", line_number);
-		free_stack_t(*head);
-
-		exit(EXIT_FAILURE);
+		temp = head;
+		head = head->next;
+		free(temp);
 	}
+}
 
-	while (current->next != NULL)
+/**
+  * toInt - converts a string to an int.
+  * @s: string to be converted.
+  *
+  * Return: number if string is num and -1 other wise.
+  */
+int toInt(char *s)
+{
+	int i, sign = 0, offset = 0, num;
+
+	if (s[0] == '-')
+		sign = -1;
+	if (sign == -1)
+		offset = 1;
+	else
+		offset = 0;
+	num = 0;
+	for (i = offset; s[i] != '\0'; i++)
 	{
-		current = current->next;
-		nnodes++;
+		if (s[i] >= '0' && s[i] <= '9')
+			num = num * 10 + s[i] - '0';
+		else
+			num = -1;
 	}
-
-	if (nnodes + 1 <= 2)
-	{
-		fprintf(stderr, "L%d: can't mod, stack too short\n", line_number);
-		free_stack_t(*head);
-
-		exit(EXIT_FAILURE);
-	}
-
-	current = *head; /*current equals to head to make module*/
-
-	if (current->n == 0)
-	{
-		fprintf(stderr, "L%d: division by zero\n", line_number);
-		exit(EXIT_FAILURE);
-	}
-
-	current->next->n = current->next->n % current->n; /*do the mod*/
-
-	*head = current->next;
-	free(current);
-	current->prev = NULL;
+	if (sign == -1)
+		num = -num;
+	return (num);
 }
